@@ -31,43 +31,15 @@ document.getElementById("year").textContent=new Date().getFullYear();
 const authButton = document.getElementById("googleSignIn");
 const authButtonText = document.getElementById("authButtonText");
 const authStatus = document.getElementById("authStatus");
-authButton.addEventListener("click", async () => {
-  if (auth.currentUser) {
-    try {
-      await signOut(auth);
-      authStatus.textContent = "You have signed out.";
-      authStatus.classList.add("visible");
-    } catch (error) {
-      authStatus.textContent = "Could not sign out. Please try again.";
-      authStatus.classList.add("visible");
-      console.error("TaxPath sign-out failed:", error);
-    }
-    return;
-  }
-  authButton.disabled = true;
-  authButtonText.textContent = "Opening Google…";
-  try {
-    const result = await signInWithPopup(auth, provider);
-    if (analytics) logEvent(analytics, "login", { method: "google" });
-    authStatus.textContent = "Signed in as " + (result.user.displayName || result.user.email || "Google user") + ".";
-    authStatus.classList.add("visible");
-  } catch (error) {
-    console.error("TaxPath Google sign-in failed:", error);
-    const messages = {
-      "auth/operation-not-allowed": "Google sign-in is not enabled in Firebase Authentication yet.",
-      "auth/unauthorized-domain": "This website domain is not authorized in Firebase Authentication.",
-      "auth/popup-blocked": "Your browser blocked the sign-in popup. Allow popups and try again.",
-      "auth/popup-closed-by-user": "Sign-in was cancelled."
-    };
-    authStatus.textContent = messages[error.code] || "Google sign-in failed. Check Firebase Authentication settings and try again.";
-    authStatus.classList.add("visible");
-  } finally {
-    authButton.disabled = false;
-    authButtonText.textContent = auth.currentUser ? (auth.currentUser.displayName || auth.currentUser.email || "Signed in · Sign out") : "Continue with Google";
-  }
+
+// The homepage button opens a dedicated sign-in page.
+authButton.addEventListener("click", () => {
+  window.location.href = new URL("signin.html", window.location.href).href;
 });
 onAuthStateChanged(auth, user => {
-  authButtonText.textContent = user ? ((user.displayName || user.email || "Signed in") + " · Sign out") : "Continue with Google";
-  authButton.setAttribute("aria-label", user ? "Sign out of TaxPath" : "Continue with Google");
+  if (!authButtonText) return;
+  authButtonText.textContent = user ? (user.displayName || user.email || "Signed in") : "Sign in";
+  authButton.setAttribute("aria-label", user ? "Signed in as " + (user.displayName || user.email || "") : "Sign in");
+  authButton.classList.toggle("signed-in", Boolean(user));
 });
 update("hero");update("main");
