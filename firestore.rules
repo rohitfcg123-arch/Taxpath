@@ -1,0 +1,47 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    // Admins must be assigned securely with Firebase Admin SDK custom claims.
+    // Never grant admin access based on a field users can edit in their own profile.
+    function isAdmin() {
+      return signedIn() && request.auth.token.admin == true;
+    }
+
+    // A user may access only their own profile document: users/{Firebase Auth UID}.
+    match /users/{userId} {
+      allow read, create, update: if signedIn() && request.auth.uid == userId;
+      allow delete: if signedIn() && request.auth.uid == userId;
+    }
+
+    // Users may submit their own login/activity event, but cannot edit or delete logs.
+    // Store the authenticated UID in each event's "uid" field.
+    match /loginEvents/{eventId} {
+      allow create: if signedIn()
+                    && request.resource.data.uid == request.auth.uid;
+      allow read: if signedIn()
+                  && (resource.data.uid == request.auth.uid || isAdmin());
+      allow update, delete: if false;
+    }
+
+    // Publicly readable published content; only trusted admins can manage it.
+    match /articles/{articleId} {
+      allow read: if resource.data.published == true || isAdmin();
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /financialNews/{newsId} {
+      allow read: if resource.data.published == true || isAdmin();
+      allow create, update, delete: if isAdmin();
+    }
+
+    // Deny everything not explicitly allowed above.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
