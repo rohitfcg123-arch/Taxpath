@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0d3152">
+  <meta name="description" content="Sign in to TaxPath securely with your Google account.">
+  <title>Sign in — TaxPath</title>
+</head>
+<body class="signin-page">
+  <main class="signin-card">
+    <a class="signin-brand" href="./index.html"><span class="logo">↗</span><span><b>TaxPath</b><small>Your money, better managed.</small></span></a>
+    <div class="signin-intro">
+      <span class="eyebrow dark">WELCOME TO TAXPATH</span>
+      <h1>Continue to your<br><em>financial hub.</em></h1>
+      <p>Sign in securely with your Google account. After sign-in, we’ll take you back to the TaxPath homepage.</p>
+    </div>
+    <button id="continueGoogle" class="google-continue" type="button"><span class="google-g">G</span> Continue with Google</button>
+    <p id="signinMessage" class="signin-message" role="status" aria-live="polite">Your Google account will be used to sign you in.</p>
+    <a class="back-home" href="./index.html">← Back to homepage</a>
+    <small class="signin-foot">Secure sign-in powered by Firebase Authentication.</small>
+  </main>
+  <script type="module" src="./src/signin.js"></script>
+</body>
+</html>
