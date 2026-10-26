@@ -16,3 +16,29 @@
 .back-home{display:block;text-align:center;color:#176541;font-size:13px;font-weight:700;margin-top:15px}
 .signin-foot{display:block;border-top:1px solid #e1e8f0;margin-top:27px;padding-top:18px;text-align:center;color:#8190a0;font-size:10px}
 .signin.signed-in{background:#e3f8ec;border-color:#a8d9bc;color:#145b3b}
+
+/* Multi-page TaxPath sections and calculator suite */
+.page-wrap{max-width:1180px;margin:0 auto;padding:24px 28px 70px;min-height:65vh}
+.page-hero{padding:40px;margin:10px 0 28px;border-radius:8px;background:#10243f;color:#fff}
+.page-hero h1{font-size:clamp(34px,5vw,54px);letter-spacing:-1.4px;line-height:1.08;margin:14px 0}
+.page-hero p{max-width:760px;color:#d4e0eb;line-height:1.8}
+.card-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin:20px 0}
+.panel{background:#fff;border:1px solid #dce6ec;border-radius:8px;padding:24px;margin-bottom:20px;box-shadow:0 5px 20px #10243f08}
+.panel h2{margin-top:0;color:#10243f}.panel p,.panel li{color:#5b7184;line-height:1.75}
+.panel ul{padding-left:22px}
+.calc-layout{display:grid;grid-template-columns:210px minmax(0,1fr);gap:22px;align-items:start}
+.calc-nav{position:sticky;top:15px;background:#fff;border:1px solid #dce6ec;border-radius:8px;padding:18px;display:grid;gap:13px}
+.calc-nav a{font-size:14px;color:#286d8c;font-weight:700}
+.calc-content .panel{scroll-margin-top:18px}
+.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.panel label{display:block;font-size:13px;font-weight:700;margin:12px 0 7px;color:#41586d}
+.panel input,.panel select{width:100%;padding:12px;border:1px solid #cbd8e2;border-radius:5px;background:#fff;color:#10243f;font:inherit}
+.cta{border:0;cursor:pointer;font:inherit;font-weight:750;margin-top:18px}
+.calc-results{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:18px}
+.calc-results>div{background:#edf6f8;border:1px solid #dce6ec;border-radius:5px;padding:13px;display:flex;flex-direction:column;gap:8px}
+.calc-results span{color:#5b7184;font-size:12px}.calc-results strong{color:#10243f;font-size:18px}
+.hint{font-size:12px;line-height:1.65;color:#65788b}
+.notice{padding:18px;border-left:4px solid #4389a8;background:#edf6f8;color:#41586d;line-height:1.7;margin:20px 0}
+.link{color:#286d8c;font-weight:800}
+header nav{flex-wrap:wrap}
+@media(max-width:760px){header{padding:14px 16px;flex-wrap:wrap}.brand{max-width:160px}.brand-logo{width:100%}header nav{order:3;width:100%;overflow-x:auto;flex-wrap:nowrap;gap:17px;padding:8px 0}header nav a{white-space:nowrap}.page-wrap{padding:12px 15px 45px}.page-hero{padding:25px}.card-grid{grid-template-columns:1fr}.calc-layout{grid-template-columns:1fr}.calc-nav{position:static;display:flex;overflow-x:auto;white-space:nowrap}.calc-nav b{display:none}.form-grid{grid-template-columns:1fr}.calc-results{grid-template-columns:1fr}.panel{padding:18px}}
