@@ -40,7 +40,7 @@ getRedirectResult(auth).catch(error => {
   showMessage("Google sign-in could not be completed. Please try again.", true);
 });
 
-button.addEventListener("click", async () => {
+async function startGoogleSignIn() {
   button.disabled = true;
   showMessage("Opening Google sign-in…");
   try {
@@ -74,4 +74,6 @@ button.addEventListener("click", async () => {
     showMessage(messages[error.code] || "Google sign-in failed. Check your Firebase settings and try again.", true);
     button.disabled = false;
   }
-});
+}
+window.taxPathGoogleSignIn = startGoogleSignIn;
+button.addEventListener("click", startGoogleSignIn);
