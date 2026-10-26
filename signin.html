@@ -16,7 +16,7 @@
       <h1>Continue to your<br><em>financial hub.</em></h1>
       <p>Sign in securely with your Google account. After sign-in, we’ll take you back to the TaxPath homepage.</p>
     </div>
-    <button id="continueGoogle" class="google-continue" type="button"><span class="google-g">G</span> Continue with Google</button>
+    <button id="continueGoogle" class="google-continue" type="button" onclick="if(window.taxPathGoogleSignIn){window.taxPathGoogleSignIn()}else{document.getElementById('signinMessage').textContent='Sign-in script is still loading. Refresh this page and try again.'}"><span class="google-g">G</span> Continue with Google</button>
     <p id="signinMessage" class="signin-message" role="status" aria-live="polite">Your Google account will be used to sign you in.</p>
     <a class="back-home" href="./index.html">← Back to homepage</a>
     <small class="signin-foot">Secure sign-in powered by Firebase Authentication.</small>
