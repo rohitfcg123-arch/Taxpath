@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 320" role="img" aria-labelledby="title desc">
+<title id="title">Tax Path — Guiding your Tax Journey</title>
+<desc id="desc">Navy Tax Path wordmark with teal tagline and a circular finance chart held by two abstract human figures.</desc>
+<rect width="1000" height="320" fill="#ffffff"/>
+<g fill="#10243f" font-family="Georgia, 'Times New Roman', serif" font-weight="700">
+  <text x="24" y="160" font-size="104" letter-spacing="1">Tax Path</text>
+</g>
+<text x="27" y="212" fill="#4389a8" font-family="Georgia, 'Times New Roman', serif" font-size="39">Guiding your Tax Journey</text>
+<g transform="translate(615 12)" stroke="#286d8c" stroke-linecap="round" stroke-linejoin="round">
+  <circle cx="165" cy="151" r="118" fill="none" stroke="#173e5c" stroke-width="14"/>
+  <path d="M50 78 C20 55 5 45 -13 42 C17 54 33 78 39 110 L53 190 C65 235 98 259 135 268" fill="none" stroke-width="12"/>
+  <circle cx="55" cy="43" r="20" fill="#286d8c" stroke="none"/>
+  <path d="M281 78 C309 55 328 44 346 42 C314 54 300 79 293 111 L279 190 C267 235 235 259 198 268" fill="none" stroke-width="12"/>
+  <circle cx="278" cy="35" r="20" fill="#286d8c" stroke="none"/>
+  <path d="M68 103 C95 44 149 20 204 32 C232 38 255 53 272 75" fill="none" stroke="#286d8c" stroke-width="14"/>
+  <path d="M110 208 V160 H135 V225 M153 225 V118 H180 V225 M198 225 V172 H223 V225" fill="#286d8c" stroke="none"/>
+  <path d="M90 227 H245" stroke="#173e5c" stroke-width="9"/>
+</g>
+</svg>
