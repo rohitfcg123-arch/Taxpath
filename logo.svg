@@ -1,19 +1,19 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 320" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 300" role="img" aria-labelledby="title desc">
 <title id="title">Tax Path — Guiding your Tax Journey</title>
-<desc id="desc">Navy Tax Path wordmark with teal tagline and a circular finance chart held by two abstract human figures.</desc>
-<rect width="1000" height="320" fill="#ffffff"/>
+<desc id="desc">Tax Path wordmark with navy text, teal tagline, and a blue circular financial chart held by two abstract people.</desc>
+<rect width="1100" height="300" fill="#fff"/>
 <g fill="#10243f" font-family="Georgia, 'Times New Roman', serif" font-weight="700">
-  <text x="24" y="160" font-size="104" letter-spacing="1">Tax Path</text>
+ <text x="18" y="163" font-size="126" letter-spacing="0">Tax Path</text>
 </g>
-<text x="27" y="212" fill="#4389a8" font-family="Georgia, 'Times New Roman', serif" font-size="39">Guiding your Tax Journey</text>
-<g transform="translate(615 12)" stroke="#286d8c" stroke-linecap="round" stroke-linejoin="round">
-  <circle cx="165" cy="151" r="118" fill="none" stroke="#173e5c" stroke-width="14"/>
-  <path d="M50 78 C20 55 5 45 -13 42 C17 54 33 78 39 110 L53 190 C65 235 98 259 135 268" fill="none" stroke-width="12"/>
-  <circle cx="55" cy="43" r="20" fill="#286d8c" stroke="none"/>
-  <path d="M281 78 C309 55 328 44 346 42 C314 54 300 79 293 111 L279 190 C267 235 235 259 198 268" fill="none" stroke-width="12"/>
-  <circle cx="278" cy="35" r="20" fill="#286d8c" stroke="none"/>
-  <path d="M68 103 C95 44 149 20 204 32 C232 38 255 53 272 75" fill="none" stroke="#286d8c" stroke-width="14"/>
-  <path d="M110 208 V160 H135 V225 M153 225 V118 H180 V225 M198 225 V172 H223 V225" fill="#286d8c" stroke="none"/>
-  <path d="M90 227 H245" stroke="#173e5c" stroke-width="9"/>
+<text x="22" y="218" fill="#4389a8" font-family="Georgia, 'Times New Roman', serif" font-size="43">Guiding your Tax Journey</text>
+<g transform="translate(700 8)" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M30 65 C3 44 -5 35 -24 31 C10 44 26 70 32 107 L44 176 C52 218 79 246 117 258" fill="none" stroke="#2f7898" stroke-width="10"/>
+  <circle cx="47" cy="36" r="20" fill="#2f7898"/>
+  <path d="M265 65 C291 44 303 35 321 31 C287 44 271 70 265 107 L253 176 C245 218 218 246 180 258" fill="none" stroke="#2f7898" stroke-width="10"/>
+  <circle cx="276" cy="31" r="20" fill="#2f7898"/>
+  <path d="M47 99 A117 117 0 0 1 267 99" fill="none" stroke="#2f7898" stroke-width="15"/>
+  <circle cx="157" cy="145" r="111" fill="none" stroke="#173e5c" stroke-width="12"/>
+  <path d="M91 202 V157 H115 V202 Z M133 202 V111 H158 V202 Z M177 202 V169 H202 V202 Z" fill="#2f7898"/>
+  <path d="M77 212 H217" stroke="#173e5c" stroke-width="9"/>
 </g>
 </svg>
