@@ -16,3 +16,37 @@
 .back-home{display:block;text-align:center;color:#176541;font-size:13px;font-weight:700;margin-top:15px}
 .signin-foot{display:block;border-top:1px solid #e1e8f0;margin-top:27px;padding-top:18px;text-align:center;color:#8190a0;font-size:10px}
 .signin.signed-in{background:#e3f8ec;border-color:#a8d9bc;color:#145b3b}
+
+/* TaxPath brand theme: navy, teal and clean white */
+:root{font-family:Georgia,"Times New Roman",serif;color:#10243f;background:#fff;--navy:#10243f;--green:#c6e5ee;--muted:#5b7184;--line:#dce6ec}
+body{background:#fff;color:#10243f}
+header{max-width:1240px}
+.brand{display:flex;align-items:center;min-width:170px;max-width:260px}
+.brand-logo{display:block;width:100%;height:auto;max-height:78px;object-fit:contain;object-position:left center}
+.hero{background:#10243f;border-radius:6px;color:#fff;box-shadow:0 18px 40px #10243f12}
+.hero h1,.section h2,.calculator h2,.news h2,.signin-intro h1{font-family:Georgia,"Times New Roman",serif}
+.hero h1 em{color:#8cc5d8}
+.eyebrow{color:#8cc5d8}
+.dark{color:#286d8c}
+.cta{background:#8cc5d8;color:#10243f;border-radius:4px}
+.quick{border:1px solid #dce6ec;border-radius:5px;box-shadow:none}
+.estimate{background:#edf6f8;border-radius:4px}
+.estimate strong{color:#173e5c}
+.tool{border-radius:5px;box-shadow:none}
+.tool:hover{box-shadow:0 8px 22px #10243f10}
+.icon{border-radius:5px}
+.calculator{background:#f1f6f8}
+.calcbox,.result,.news{border-radius:5px}
+.result{background:#10243f}
+.result>strong{color:#8cc5d8}
+.news{background:#e4f1f5}
+.rupee{background:#cce7ef;color:#173e5c;border-radius:50%}
+footer{background:#10243f}
+.footer-logo{display:block;width:190px;max-width:100%;height:auto;background:#fff}
+.footbrand{display:block}
+.signin-page{font-family:Georgia,"Times New Roman",serif;background:#eef5f7}
+.signin-card{border-radius:6px;box-shadow:0 18px 55px #10243f14}
+.signin-logo{display:block;width:100%;max-width:300px;height:auto}
+.signin-intro h1 em{color:#286d8c}
+.google-continue{border-radius:5px}
+@media(max-width:560px){.brand{max-width:185px;min-width:130px}.brand-logo{max-height:55px}.footer-logo{width:165px}}
