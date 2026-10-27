@@ -1,20 +1,22 @@
 const $ = id => document.getElementById(id);
 const searchInput = $("stockSearch"), suggestions = $("stockSuggestions"), statusBox = $("stockStatus"), dashboard = $("stockDashboard");
 let matches = [], selected = null, activeRange = "1y", debounce = null, searchController = null, chartController = null;
-// GitHub Pages has no backend proxy; try the provider directly, then a CORS relay if the browser blocks it.
+// GitHub Pages is static, so try several public CORS relays when the data provider blocks browsers.
+// For reliability in the search box, a small local catalogue is also available as a fallback.
 async function fetchMarketJSON(url, signal){
-  let firstError;
-  try{
-    const direct = await fetch(url,{signal,headers:{"Accept":"application/json"}});
-    if(!direct.ok) throw new Error("Provider returned HTTP "+direct.status);
-    return await direct.json();
-  }catch(e){if(e.name==="AbortError")throw e;firstError=e;}
-  try{
-    const relay = await fetch("https://corsproxy.io/?url="+encodeURIComponent(url),{signal,headers:{"Accept":"application/json"}});
-    if(!relay.ok) throw new Error("Fallback returned HTTP "+relay.status);
-    return await relay.json();
-  }catch(e){if(e.name==="AbortError")throw e;throw new Error("Browser blocked the market-data request and the fallback source was unavailable ("+(e.message||firstError?.message||"network error")+").");}
+  const attempts = [
+    async()=>{const r=await fetch(url,{signal,headers:{"Accept":"application/json"}});if(!r.ok)throw new Error("Provider HTTP "+r.status);return r.json();},
+    async()=>{const r=await fetch("https://api.allorigins.win/raw?url="+encodeURIComponent(url),{signal});if(!r.ok)throw new Error("AllOrigins HTTP "+r.status);return r.json();},
+    async()=>{const r=await fetch("https://corsproxy.io/?url="+encodeURIComponent(url),{signal});if(!r.ok)throw new Error("CORS proxy HTTP "+r.status);return r.json();},
+    async()=>{const r=await fetch("https://api.codetabs.com/v1/proxy?quest="+encodeURIComponent(url),{signal});if(!r.ok)throw new Error("CodeTabs HTTP "+r.status);return r.json();}
+  ];
+  let lastError;
+  for(const attempt of attempts){try{return await attempt();}catch(e){if(e.name==="AbortError")throw e;lastError=e;}}
+  throw new Error("Market data could not be reached from this browser. "+(lastError?.message||"All available sources failed."));
 }
+const indianStocks = [
+ ["Tata Consultancy Services","TCS","TCS.NS","NSE"],["Reliance Industries","RELIANCE","RELIANCE.NS","NSE"],["HDFC Bank","HDFCBANK","HDFCBANK.NS","NSE"],["ICICI Bank","ICICIBANK","ICICIBANK.NS","NSE"],["Infosys","INFY","INFY.NS","NSE"],["State Bank of India","SBIN","SBIN.NS","NSE"],["Bharti Airtel","BHARTIARTL","BHARTIARTL.NS","NSE"],["ITC","ITC","ITC.NS","NSE"],["Larsen & Toubro","LT","LT.NS","NSE"],["Hindustan Unilever","HINDUNILVR","HINDUNILVR.NS","NSE"],["Wipro","WIPRO","WIPRO.NS","NSE"],["Tata Motors","TATAMOTORS","TATAMOTORS.NS","NSE"],["Mahindra & Mahindra","M&M","M&M.NS","NSE"],["Axis Bank","AXISBANK","AXISBANK.NS","NSE"],["Bajaj Finance","BAJFINANCE","BAJFINANCE.NS","NSE"],["Maruti Suzuki India","MARUTI","MARUTI.NS","NSE"],["NTPC","NTPC","NTPC.NS","NSE"],["Power Grid Corporation","POWERGRID","POWERGRID.NS","NSE"],["Adani Enterprises","ADANIENT","ADANIENT.NS","NSE"],["Asian Paints","ASIANPAINT","ASIANPAINT.NS","NSE"],["Titan Company","TITAN","TITAN.NS","NSE"],["Coal India","COALINDIA","COALINDIA.NS","NSE"],["Sun Pharmaceutical","SUNPHARMA","SUNPHARMA.NS","NSE"],["Zomato (Eternal)","ETERNAL","ETERNAL.NS","NSE"],["Tata Steel","TATASTEEL","TATASTEEL.NS","NSE"],["HCL Technologies","HCLTECH","HCLTECH.NS","NSE"],["Kotak Mahindra Bank","KOTAKBANK","KOTAKBANK.NS","NSE"],["BSE Limited","BSE","BSE.NS","NSE"],["National Aluminium Company","NATIONALUM","NATIONALUM.NS","NSE"],["HDFC Life Insurance","HDFCLIFE","HDFCLIFE.NS","NSE"]
+].map(([longname,shortname,symbol,exchange])=>({longname,shortname,symbol,exchange,exchDisp:exchange,quoteType:"EQUITY",typeDisp:"Equity"}));
 const fmt = (n, opts={}) => Number.isFinite(Number(n)) ? new Intl.NumberFormat("en-IN",{maximumFractionDigits:opts.digits ?? 2, ...opts}).format(Number(n)) : "Not available";
 const money = (n, currency="INR") => Number.isFinite(Number(n)) ? new Intl.NumberFormat("en-IN",{style:"currency",currency,maximumFractionDigits:2}).format(Number(n)) : "Not available";
 const safe = v => (v === null || v === undefined || v === "" || !Number.isFinite(v) && typeof v === "number") ? "Not available" : String(v);
@@ -35,7 +37,13 @@ async function searchCompanies(query, auto=false){
     const all=(data.quotes||[]).filter(q=>q.symbol && /\.(NS|BO)$/i.test(q.symbol) && !/ETF|MUTUALFUND|INDEX/i.test(q.quoteType||""));
     renderSuggestions(all.slice(0,9));
     if(!auto && all.length) setStatus("Choose the correct exchange listing from the suggestions.");
-  }catch(e){if(e.name==="AbortError")return;closeSuggestions();setStatus("Live company search could not connect. Check your internet and try again.","error");}
+  }catch(e){
+    if(e.name==="AbortError")return;
+    const q=query.toLowerCase();
+    const local=indianStocks.filter(x=>(x.longname+" "+x.shortname+" "+x.symbol).toLowerCase().includes(q)).slice(0,9);
+    if(local.length){renderSuggestions(local);setStatus("Live search provider is unreachable. Showing matching companies from the built-in list; market details still need a live data connection.","warning");}
+    else {closeSuggestions();setStatus("Live company search is temporarily unavailable, and there is no built-in match for this name. Try a major Indian listed company or retry later.","error");}
+  }
 }
 function chooseStock(index){selected=matches[index];if(!selected)return;searchInput.value=selected.longname||selected.shortname||selected.symbol;closeSuggestions();loadStock(activeRange);}
 function metric(label,value,sub=""){const d=document.createElement("div");d.className="stock-metric";const l=document.createElement("span");l.textContent=label;const v=document.createElement("strong");v.textContent=value;d.append(l,v);if(sub){const s=document.createElement("small");s.textContent=sub;d.append(s);}return d;}
