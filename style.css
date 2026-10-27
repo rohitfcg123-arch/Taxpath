@@ -256,3 +256,28 @@ body>footer{max-width:none}
   .chart-card{padding:15px}
   body>footer{padding:26px 20px}
 }
+
+
+/* Navigation layout fix: horizontal on desktop, compact dropdown on mobile/tablet */
+header{position:relative;display:flex;flex-wrap:nowrap;align-items:center;justify-content:space-between;min-width:0}
+header .brand{flex:0 1 auto;min-width:0}
+header .brand-logo{width:clamp(145px,18vw,220px);max-width:100%;max-height:62px}
+header nav#nav{position:static;display:flex;flex:1 1 auto;flex-direction:row;flex-wrap:nowrap;align-items:center;justify-content:center;gap:clamp(10px,1.8vw,24px);min-width:0;padding:0;margin:0;background:transparent;border:0;border-radius:0;box-shadow:none;color:#41586d}
+header nav#nav a{display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;padding:8px 0;border:0;background:transparent;border-radius:0;font-size:clamp(11px,1vw,13px);font-weight:650}
+header .header-actions{flex:0 0 auto}
+header #menu{display:none;flex:0 0 auto}
+@media(max-width:900px){
+  header{gap:12px}
+  header nav#nav{display:none;position:absolute;top:calc(100% - 2px);left:14px;right:14px;z-index:100;flex-direction:column;align-items:stretch;justify-content:flex-start;gap:4px;padding:10px;background:#fff;border:1px solid #dce6ee;border-radius:16px;box-shadow:0 16px 35px #17324b20}
+  header nav#nav.open{display:flex}
+  header nav#nav a{width:100%;justify-content:flex-start;white-space:normal;padding:12px 14px;border-radius:10px;font-size:14px}
+  header nav#nav a:hover{background:#eff8f3}
+  header #menu{display:block;border:1px solid #dce6ee;border-radius:10px;background:#fff;padding:8px 10px;font-size:20px;line-height:1}
+  header .brand-logo{width:clamp(125px,28vw,190px)}
+}
+@media(max-width:420px){
+  header{padding:12px}
+  header .brand-logo{width:125px}
+  header .header-actions{gap:6px}
+  header .signin{padding:8px 9px}
+}
