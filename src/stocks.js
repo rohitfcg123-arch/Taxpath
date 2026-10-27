@@ -71,7 +71,7 @@ function renderDonut(price,low,high,currency){
   wrap.innerHTML='<div class="stock-donut" style="--donut-pct:'+pct+'%;--donut-color:'+(pct<30?'#d69b38':pct>70?'#16845b':'#3484a5')+'"><div><strong>'+Math.round(pct)+'%</strong><small>of 52-week range</small></div></div>';
   $("stockRangeText").textContent="52-week low "+money(low,currency)+" · high "+money(high,currency);
 }
-async const statementData={income:[],balance:[],cashflow:[],ratios:[]};
+const statementData={income:[],balance:[],cashflow:[],ratios:[]};
 let activeStatement="income";
 function renderFinancialTable(){
  const wrap=$("stockFinancialTable");if(!wrap)return;
