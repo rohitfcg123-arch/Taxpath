@@ -75,74 +75,37 @@ async function loadStock(range=activeRange){
   if(!selected)return;
   activeRange=range;dashboard.hidden=false;
   const company=selected.longname||selected.shortname||selected.symbol;
-  setStatus("Opening market chart for "+company+"…");
+  setStatus("Loading company financial resources for "+company+"…");
   $("stockCompanyName").textContent=company;
   $("stockTicker").textContent=selected.symbol;
   $("stockExchange").textContent=(selected.exchDisp||selected.exchange||"Listed market")+" · "+(selected.quoteType||"EQUITY");
   $("stockMonogram").textContent=(selected.shortname||selected.symbol||"₹").trim().charAt(0).toUpperCase();
-  const isNse=/\.NS$/i.test(selected.symbol);
-  const isBse=/\.BO$/i.test(selected.symbol);
-  const tvSymbol=(isNse?"NSE:":isBse?"BSE:":(selected.exchange||"NSE")+":")+selected.symbol.replace(/\.(NS|BO)$/i,"");
-  const encodedSymbol=encodeURIComponent(tvSymbol);
-  const chart=$("stockLineChart");
-  chart.replaceChildren();
-  // Use TradingView's standard embeddable Advanced Chart widget.
-  const frame=document.createElement("iframe");
-  frame.title=company+" stock price chart";
-  frame.loading="lazy";
-  frame.style.cssText="display:block;width:100%;height:430px;border:0;border-radius:12px;background:#f7fafc";
-  const widgetConfig={
-    autosize:true,
-    symbol:tvSymbol,
-    interval:"D",
-    timezone:"Asia/Kolkata",
-    theme:"light",
-    style:"1",
-    locale:"en",
-    allow_symbol_change:true,
-    calendar:false,
-    support_host:"https://www.tradingview.com"
-  };
-  frame.src="https://www.tradingview.com/widgetembed/?"+new URLSearchParams({
-    symbol:tvSymbol,
-    interval:"D",
-    hidesidetoolbar:"0",
-    symboledit:"1",
-    saveimage:"0",
-    toolbarbg:"F7FAFC",
-    theme:"light",
-    style:"1",
-    timezone:"Asia/Kolkata",
-    withdateranges:"1",
-    hideideas:"1",
-    hidevolume:"0",
-    locale:"en",
-    utm_source:"rohitfcg123-arch.github.io",
-    utm_medium:"widget",
-    utm_campaign:"chart"
-  }).toString();
-  frame.onerror=()=>{
-    chart.innerHTML='<div class="stock-empty">This symbol may not be available in the embedded chart. <a href="https://www.tradingview.com/chart/?symbol='+encodeURIComponent(tvSymbol)+'" target="_blank" rel="noopener">Open '+tvSymbol+' on TradingView ↗</a></div>';
-  };
-  chart.appendChild(frame);
-  $("stockChartRange").textContent="Interactive chart · "+tvSymbol;
-  $("stockChartSource").textContent="Chart provider: TradingView";
-  $("stockPrice").textContent="Open live quote ↗";
+  const ticker=(selected.symbol||"").replace(/\.(NS|BO)$/i,"");
+  const screenerUrl="https://www.screener.in/company/"+encodeURIComponent(ticker)+"/";
+  const screenerConsolidated=screenerUrl+"consolidated/";
+  ["stockScreenerPL","stockScreenerBS","stockScreenerCF","stockScreenerRatios"].forEach(id=>{
+    const el=$(id);if(el)el.href=screenerConsolidated;
+  });
+  const searchUrl="https://www.google.com/search?q="+encodeURIComponent(company+" annual report investor relations");
+  const annual=$("stockAnnualReport");if(annual)annual.href=searchUrl;
+  const nse=$("stockNseFinancials");if(nse)nse.href="https://www.nseindia.com/get-quotes/equity?symbol="+encodeURIComponent(ticker);
+  const bse=$("stockBseFinancials");if(bse)bse.href="https://www.bseindia.com/stock-share-price/"+encodeURIComponent(ticker.toLowerCase())+"/";
+  const mca=$("stockMcaFinancials");if(mca)mca.href="https://www.mca.gov.in/content/mca/global/en/mca/master-data/MDS.html";
+  $("stockPrice").textContent="View market quote ↗";
   $("stockPrice").style.fontSize="clamp(19px,2.5vw,26px)";
-  $("stockPrice").onclick=()=>window.open("https://www.tradingview.com/chart/?symbol="+encodeURIComponent(tvSymbol),"_blank","noopener");
+  $("stockPrice").onclick=()=>window.open("https://www.google.com/search?q="+encodeURIComponent(company+" share price NSE"),"_blank","noopener");
   $("stockPrice").style.cursor="pointer";
   const changeEl=$("stockChange");
-  changeEl.textContent="Quote and price changes shown in chart";
+  changeEl.textContent="Financial statements and official filings below";
   changeEl.className="stock-change";
-  $("stockAsOf").textContent="Market quote availability depends on TradingView and exchange data permissions.";
+  $("stockAsOf").textContent="Use published company reports for verified financial figures.";
   const metrics=$("stockMetrics");metrics.replaceChildren();
-  metrics.append(metric("Exchange",selected.exchDisp||selected.exchange||"Not available"),metric("Ticker",selected.symbol),metric("Security type",selected.quoteType||"Equity"),metric("Market data","TradingView chart"),metric("Price history","Interactive"),metric("Currency","Check exchange quote"));
-  renderDonut(NaN,NaN,NaN,"INR");
+  metrics.append(metric("Exchange",selected.exchDisp||selected.exchange||"Not available"),metric("Ticker",selected.symbol),metric("Security type",selected.quoteType||"Equity"),metric("Financial statements","P&L · Balance Sheet · Cash Flow"),metric("Data basis","External financial source"),metric("Legal records","MCA / exchange filings"));
   const profile=$("stockProfileGrid");profile.replaceChildren();
   profile.append(profileItem("Company / security name",company),profileItem("Ticker / exchange symbol",selected.symbol),profileItem("Exchange",selected.exchDisp||selected.exchange),profileItem("Security type",selected.quoteType||"Equity"),profileItem("Sector","Not available from search result"),profileItem("Industry","Not available from search result"),profileItem("Market price","Open TradingView chart"),profileItem("Legal company records","Verify via MCA master data"));
   $("stockBseLink").href="https://www.bseindia.com/";
   $("stockNseLink").href="https://www.nseindia.com/";
-  setStatus("Company selected. The interactive chart is provided by TradingView; legal company details should be verified with MCA.","success");
+  setStatus("Company selected. Open financial statements and filings using the links below; verify figures against official reports.","success");
 }
 searchInput?.addEventListener("input",()=>{
   const q=searchInput.value.trim();selected=null;clearTimeout(debounce);
