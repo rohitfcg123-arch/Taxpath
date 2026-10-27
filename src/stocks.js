@@ -23,6 +23,13 @@ const safe = v => (v === null || v === undefined || v === "" || !Number.isFinite
 function setStatus(message, kind="info"){statusBox.textContent=message;statusBox.className="stock-status "+kind;}
 function closeSuggestions(){suggestions.hidden=true;suggestions.innerHTML="";}
 function quoteLabel(q){const exchange=(q.exchange||q.exchDisp||"").toUpperCase();return exchange+" · "+(q.symbol||"");}
+function findLocalCompanies(query){
+  const q=query.trim().toLowerCase();
+  if(q.length<1)return [];
+  return indianStocks.filter(x=>(x.longname+" "+x.shortname+" "+x.symbol).toLowerCase().includes(q))
+    .sort((a,b)=>Number(b.shortname.toLowerCase().startsWith(q)||b.symbol.toLowerCase().startsWith(q))-Number(a.shortname.toLowerCase().startsWith(q)||a.symbol.toLowerCase().startsWith(q)))
+    .slice(0,9);
+}
 function renderSuggestions(items){
   matches=items; suggestions.innerHTML="";
   if(!items.length){closeSuggestions();setStatus("No matching listed stocks found. Try a shorter name or ticker.","warning");return;}
@@ -39,10 +46,9 @@ async function searchCompanies(query, auto=false){
     if(!auto && all.length) setStatus("Choose the correct exchange listing from the suggestions.");
   }catch(e){
     if(e.name==="AbortError")return;
-    const q=query.toLowerCase();
-    const local=indianStocks.filter(x=>(x.longname+" "+x.shortname+" "+x.symbol).toLowerCase().includes(q)).slice(0,9);
-    if(local.length){renderSuggestions(local);setStatus("Live search provider is unreachable. Showing matching companies from the built-in list; market details still need a live data connection.","warning");}
-    else {closeSuggestions();setStatus("Live company search is temporarily unavailable, and there is no built-in match for this name. Try a major Indian listed company or retry later.","error");}
+    const local=findLocalCompanies(query);
+    if(local.length){renderSuggestions(local);setStatus("Live search is unavailable. Showing built-in matches; live prices may also be unavailable.","warning");}
+    else {closeSuggestions();setStatus("Live company search is temporarily unavailable, and no built-in match was found. Try a major Indian listed company or retry later.","error");}
   }
 }
 function chooseStock(index){selected=matches[index];if(!selected)return;searchInput.value=selected.longname||selected.shortname||selected.symbol;closeSuggestions();loadStock(activeRange);}
@@ -94,8 +100,23 @@ async function loadStock(range=activeRange){
     $("stockStatus").className="stock-status success";$("stockStatus").textContent="Market data loaded. Verify company registration and filings using the official links below.";
   }catch(e){if(e.name==="AbortError")return;setStatus("Could not load live market data: "+e.message+". The market-data provider may block browser requests; try again later or use the official exchange links.","error");$("stockLineChart").innerHTML='<div class="stock-empty">Chart unavailable. Try again or open the exchange source.</div>';}
 }
-searchInput?.addEventListener("input",()=>{const q=searchInput.value.trim();selected=null;clearTimeout(debounce);if(q.length<2){closeSuggestions();return;}debounce=setTimeout(()=>searchCompanies(q,true),300);});
+searchInput?.addEventListener("input",()=>{
+  const q=searchInput.value.trim();selected=null;clearTimeout(debounce);
+  if(q.length<1){closeSuggestions();setStatus("Start typing a company name to explore its available data.");return;}
+  // Render local suggestions immediately; never make the dropdown depend on an external API.
+  const local=findLocalCompanies(q);
+  if(local.length){renderSuggestions(local);setStatus("Select a company below. Live prices and charts require a working market-data connection.","info");}
+  else if(q.length>=2){closeSuggestions();setStatus("Searching listed companies…");}
+  else {closeSuggestions();}
+  if(q.length>=2)debounce=setTimeout(()=>searchCompanies(q,true),450);
+});
 searchInput?.addEventListener("keydown",e=>{if(e.key==="Escape")closeSuggestions();if(e.key==="Enter"){e.preventDefault();if(matches.length)chooseStock(0);else if(searchInput.value.trim().length>1)searchCompanies(searchInput.value.trim(),false);}});
-$("stockSearchBtn")?.addEventListener("click",()=>{const q=searchInput.value.trim();if(matches.length){chooseStock(0);}else if(q.length>1)searchCompanies(q,false);else setStatus("Enter at least two letters of a company name.","warning");});
+$("stockSearchBtn")?.addEventListener("click",()=>{
+  const q=searchInput.value.trim();
+  const local=findLocalCompanies(q);
+  if(local.length){renderSuggestions(local);chooseStock(0);return;}
+  if(matches.length){chooseStock(0);return;}
+  if(q.length>1)searchCompanies(q,false);else setStatus("Enter at least one letter of a company name.","warning");
+});
 $("stockPeriodButtons")?.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{if(!selected)return;$("stockPeriodButtons").querySelectorAll("button").forEach(x=>x.classList.toggle("active",x===b));loadStock(b.dataset.range);}));
 document.addEventListener("click",e=>{if(!e.target.closest(".stock-search-wrap"))closeSuggestions();});
