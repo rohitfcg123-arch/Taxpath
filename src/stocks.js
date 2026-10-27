@@ -72,33 +72,49 @@ function renderDonut(price,low,high,currency){
   $("stockRangeText").textContent="52-week low "+money(low,currency)+" · high "+money(high,currency);
 }
 async function loadStock(range=activeRange){
-  if(!selected)return;activeRange=range;dashboard.hidden=false;setStatus("Loading market data for "+(selected.longname||selected.symbol)+"…");
-  $("stockCompanyName").textContent=selected.longname||selected.shortname||selected.symbol;
+  if(!selected)return;
+  activeRange=range;dashboard.hidden=false;
+  const company=selected.longname||selected.shortname||selected.symbol;
+  setStatus("Opening market chart for "+company+"…");
+  $("stockCompanyName").textContent=company;
   $("stockTicker").textContent=selected.symbol;
   $("stockExchange").textContent=(selected.exchDisp||selected.exchange||"Listed market")+" · "+(selected.quoteType||"EQUITY");
   $("stockMonogram").textContent=(selected.shortname||selected.symbol||"₹").trim().charAt(0).toUpperCase();
-  $("stockMetrics").replaceChildren();$("stockProfileGrid").replaceChildren();$("stockLineChart").innerHTML='<div class="stock-empty">Loading price history…</div>';
-  if(chartController)chartController.abort();chartController=new AbortController();
-  try{
-    const url="https://query1.finance.yahoo.com/v8/finance/chart/"+encodeURIComponent(selected.symbol)+"?range="+range+"&interval=1d&events=div%2Csplits";
-    const json=await fetchMarketJSON(url,chartController.signal),root=json.chart?.result?.[0];if(!root)throw new Error(json.chart?.error?.description||"No market data available");
-    const m=root.meta||{},q=root.indicators?.quote?.[0]||{},ts=root.timestamp||[];
-    const points=ts.map((t,i)=>({date:new Date(t*1000),close:q.close?.[i]})).filter(p=>Number.isFinite(p.close));
-    const currency=m.currency||"INR",price=Number(m.regularMarketPrice),prev=Number(m.chartPreviousClose||m.previousClose),change=Number.isFinite(price)&&Number.isFinite(prev)&&prev?((price-prev)/prev*100):NaN,abs=Number.isFinite(price)&&Number.isFinite(prev)?price-prev:NaN;
-    $("stockPrice").textContent=money(price,currency);
-    const changeEl=$("stockChange");changeEl.textContent=Number.isFinite(change)?(abs>=0?"+":"")+money(abs,currency)+" ("+(change>=0?"+":"")+fmt(change)+"%)":"Change unavailable";changeEl.className="stock-change "+(change>=0?"up":"down");
-    $("stockAsOf").textContent=m.regularMarketTime?"Market timestamp: "+new Date(m.regularMarketTime*1000).toLocaleString("en-IN"):"Market timestamp not supplied";
-    const high=Number(m.fiftyTwoWeekHigh),low=Number(m.fiftyTwoWeekLow),open=Number(m.regularMarketOpen),vol=Number(m.regularMarketVolume),prevClose=Number(m.chartPreviousClose||m.previousClose);
-    const metrics=$("stockMetrics");metrics.append(metric("Previous close",money(prevClose,currency)),metric("Day open",money(open,currency)),metric("52-week high",money(high,currency)),metric("52-week low",money(low,currency)),metric("Trading volume",Number.isFinite(vol)?fmt(vol,{maximumFractionDigits:0}):"Not available"),metric("Currency",currency));
-    $("stockLineChart").innerHTML=points.length>1?svgLine(points,points[points.length-1].close>=points[0].close):'<div class="stock-empty">Price history is not available for this selection.</div>';
-    $("stockChartRange").textContent=points.length?points.length+" daily observations":"No history";
-    renderDonut(price,low,high,currency);
-    const profile=$("stockProfileGrid");
-    profile.append(profileItem("Company / security name",selected.longname||selected.shortname),profileItem("Ticker / exchange symbol",selected.symbol),profileItem("Exchange",selected.exchDisp||selected.exchange),profileItem("Security type",selected.quoteType),profileItem("Sector",selected.sector),profileItem("Industry",selected.industry),profileItem("Currency",currency),profileItem("Market price",money(price,currency)));
-    $("stockBseLink").href="https://www.bseindia.com/";
-    $("stockNseLink").href="https://www.nseindia.com/";
-    $("stockStatus").className="stock-status success";$("stockStatus").textContent="Market data loaded. Verify company registration and filings using the official links below.";
-  }catch(e){if(e.name==="AbortError")return;setStatus("Could not load live market data: "+e.message+". The market-data provider may block browser requests; try again later or use the official exchange links.","error");$("stockLineChart").innerHTML='<div class="stock-empty">Chart unavailable. Try again or open the exchange source.</div>';}
+  const isNse=/\.NS$/i.test(selected.symbol);
+  const isBse=/\.BO$/i.test(selected.symbol);
+  const tvSymbol=(isNse?"NSE:":isBse?"BSE:":(selected.exchange||"NSE")+":")+selected.symbol.replace(/\.(NS|BO)$/i,"");
+  const encodedSymbol=encodeURIComponent(tvSymbol);
+  const rangeMap={"1mo":"1","3mo":"3","6mo":"6","1y":"12","5y":"60"};
+  const months=rangeMap[range]||"12";
+  // Use TradingView's hosted chart widget: no browser-side API key or CORS fetch is required.
+  const chartUrl="https://www.tradingview.com/widgetembed/?symbol="+encodedSymbol+"&interval=D&hidesidetoolbar=0&symboledit=1&saveimage=0&toolbarbg=F7FAFC&theme=light&style=1&timezone=Asia%2FKolkata&withdateranges=1&hideideas=1&hidevolume=0&locale=en";
+  const chart=$("stockLineChart");
+  chart.innerHTML="";
+  const frame=document.createElement("iframe");
+  frame.title=company+" stock price chart";
+  frame.loading="lazy";
+  frame.referrerPolicy="origin";
+  frame.style.cssText="display:block;width:100%;height:430px;border:0;border-radius:12px;background:#f7fafc";
+  frame.src=chartUrl;
+  chart.appendChild(frame);
+  $("stockChartRange").textContent="Interactive chart · "+tvSymbol;
+  $("stockChartSource").textContent="Chart provider: TradingView";
+  $("stockPrice").textContent="See live quote ↗";
+  $("stockPrice").style.fontSize="clamp(19px,2.5vw,26px)";
+  $("stockPrice").onclick=()=>window.open("https://www.tradingview.com/symbols/"+encodeURIComponent(tvSymbol)+"/","_blank","noopener");
+  $("stockPrice").style.cursor="pointer";
+  const changeEl=$("stockChange");
+  changeEl.textContent="Quote and price changes shown in chart";
+  changeEl.className="stock-change";
+  $("stockAsOf").textContent="Market quote availability depends on TradingView and exchange data permissions.";
+  const metrics=$("stockMetrics");metrics.replaceChildren();
+  metrics.append(metric("Exchange",selected.exchDisp||selected.exchange||"Not available"),metric("Ticker",selected.symbol),metric("Security type",selected.quoteType||"Equity"),metric("Market data","TradingView chart"),metric("Price history","Interactive"),metric("Currency","INR (expected; verify listing)"));
+  renderDonut(NaN,NaN,NaN,"INR");
+  const profile=$("stockProfileGrid");profile.replaceChildren();
+  profile.append(profileItem("Company / security name",company),profileItem("Ticker / exchange symbol",selected.symbol),profileItem("Exchange",selected.exchDisp||selected.exchange),profileItem("Security type",selected.quoteType||"Equity"),profileItem("Sector","Not available from search result"),profileItem("Industry","Not available from search result"),profileItem("Market price","Open TradingView chart"),profileItem("Legal company records","Verify via MCA master data"));
+  $("stockBseLink").href="https://www.bseindia.com/";
+  $("stockNseLink").href="https://www.nseindia.com/";
+  setStatus("Company selected. The interactive chart is provided by TradingView; legal company details should be verified with MCA.","success");
 }
 searchInput?.addEventListener("input",()=>{
   const q=searchInput.value.trim();selected=null;clearTimeout(debounce);
