@@ -1,6 +1,20 @@
 const $ = id => document.getElementById(id);
 const searchInput = $("stockSearch"), suggestions = $("stockSuggestions"), statusBox = $("stockStatus"), dashboard = $("stockDashboard");
 let matches = [], selected = null, activeRange = "1y", debounce = null, searchController = null, chartController = null;
+// GitHub Pages has no backend proxy; try the provider directly, then a CORS relay if the browser blocks it.
+async function fetchMarketJSON(url, signal){
+  let firstError;
+  try{
+    const direct = await fetch(url,{signal,headers:{"Accept":"application/json"}});
+    if(!direct.ok) throw new Error("Provider returned HTTP "+direct.status);
+    return await direct.json();
+  }catch(e){if(e.name==="AbortError")throw e;firstError=e;}
+  try{
+    const relay = await fetch("https://corsproxy.io/?url="+encodeURIComponent(url),{signal,headers:{"Accept":"application/json"}});
+    if(!relay.ok) throw new Error("Fallback returned HTTP "+relay.status);
+    return await relay.json();
+  }catch(e){if(e.name==="AbortError")throw e;throw new Error("Browser blocked the market-data request and the fallback source was unavailable ("+(e.message||firstError?.message||"network error")+").");}
+}
 const fmt = (n, opts={}) => Number.isFinite(Number(n)) ? new Intl.NumberFormat("en-IN",{maximumFractionDigits:opts.digits ?? 2, ...opts}).format(Number(n)) : "Not available";
 const money = (n, currency="INR") => Number.isFinite(Number(n)) ? new Intl.NumberFormat("en-IN",{style:"currency",currency,maximumFractionDigits:2}).format(Number(n)) : "Not available";
 const safe = v => (v === null || v === undefined || v === "" || !Number.isFinite(v) && typeof v === "number") ? "Not available" : String(v);
@@ -17,9 +31,7 @@ async function searchCompanies(query, auto=false){
   if(searchController)searchController.abort();searchController=new AbortController();
   try{
     const url="https://query1.finance.yahoo.com/v1/finance/search?q="+encodeURIComponent(query)+"&quotesCount=12&newsCount=0&listsCount=0";
-    const res=await fetch(url,{signal:searchController.signal,headers:{"Accept":"application/json"}});
-    if(!res.ok)throw new Error("Search provider returned "+res.status);
-    const data=await res.json();
+    const data=await fetchMarketJSON(url,searchController.signal);
     const all=(data.quotes||[]).filter(q=>q.symbol && /\.(NS|BO)$/i.test(q.symbol) && !/ETF|MUTUALFUND|INDEX/i.test(q.quoteType||""));
     renderSuggestions(all.slice(0,9));
     if(!auto && all.length) setStatus("Choose the correct exchange listing from the suggestions.");
@@ -55,9 +67,7 @@ async function loadStock(range=activeRange){
   if(chartController)chartController.abort();chartController=new AbortController();
   try{
     const url="https://query1.finance.yahoo.com/v8/finance/chart/"+encodeURIComponent(selected.symbol)+"?range="+range+"&interval=1d&events=div%2Csplits";
-    const res=await fetch(url,{signal:chartController.signal,headers:{"Accept":"application/json"}});
-    if(!res.ok)throw new Error("Market data provider returned "+res.status);
-    const json=await res.json(),root=json.chart?.result?.[0];if(!root)throw new Error(json.chart?.error?.description||"No market data available");
+    const json=await fetchMarketJSON(url,chartController.signal),root=json.chart?.result?.[0];if(!root)throw new Error(json.chart?.error?.description||"No market data available");
     const m=root.meta||{},q=root.indicators?.quote?.[0]||{},ts=root.timestamp||[];
     const points=ts.map((t,i)=>({date:new Date(t*1000),close:q.close?.[i]})).filter(p=>Number.isFinite(p.close));
     const currency=m.currency||"INR",price=Number(m.regularMarketPrice),prev=Number(m.chartPreviousClose||m.previousClose),change=Number.isFinite(price)&&Number.isFinite(prev)&&prev?((price-prev)/prev*100):NaN,abs=Number.isFinite(price)&&Number.isFinite(prev)?price-prev:NaN;
