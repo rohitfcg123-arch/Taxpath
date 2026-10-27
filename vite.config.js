@@ -7,6 +7,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: resolve(process.cwd(), "index.html"),
+        companyResearch: resolve(process.cwd(), "company-research.html"),
         signin: resolve(process.cwd(), "signin.html"),
         calculators: resolve(process.cwd(), "calculators.html"),
         loanCalculator: resolve(process.cwd(), "loan-calculator.html"),
