@@ -42,8 +42,28 @@
   <div id="stockDashboard" class="stock-dashboard" hidden>
     <div class="stock-company-card"><div class="stock-company-main"><div id="stockMonogram" class="stock-monogram">₹</div><div><span id="stockExchange" class="stock-kicker">NSE • EQUITY</span><h3 id="stockCompanyName">Company name</h3><p id="stockTicker">TICKER.NS</p></div></div><div class="stock-price-block"><strong id="stockPrice">—</strong><span id="stockChange" class="stock-change">—</span><small id="stockAsOf">Market data timestamp unavailable</small></div></div>
     <div id="stockMetrics" class="stock-metrics"></div>
-    <div class="stock-chart-grid"><article class="stock-panel stock-chart-panel"><div class="stock-panel-head"><div><span class="stock-kicker">PRICE PERFORMANCE</span><h3>Price history</h3></div><div id="stockPeriodButtons" class="stock-periods"><button data-range="1mo">1M</button><button data-range="3mo">3M</button><button data-range="6mo">6M</button><button class="active" data-range="1y">1Y</button><button data-range="5y">5Y</button></div></div><div id="stockLineChart" class="stock-line-chart"><div class="stock-empty">Select a company to load its price chart.</div></div><div class="stock-chart-foot"><span id="stockChartSource">Source: Yahoo Finance market data</span><span id="stockChartRange"></span></div></article>
-      <article class="stock-panel stock-range-panel"><div class="stock-panel-head"><div><span class="stock-kicker">TRADING RANGE</span><h3>52-week position</h3></div></div><div id="stockDonut" class="stock-donut-wrap"><div class="stock-empty">Price range will appear here.</div></div><div id="stockRangeText" class="stock-range-text"></div></article></div>
+    <div class="stock-financials-grid">
+      <article class="stock-panel stock-chart-panel">
+        <div class="stock-panel-head"><div><span class="stock-kicker">FINANCIAL STATEMENTS</span><h3>Company financials</h3></div><span class="stock-source-tag">Annual + quarterly</span></div>
+        <p class="stock-financials-intro">Open the selected company's published profit &amp; loss, balance sheet, cash flow, ratios and quarterly results from financial-data sources.</p>
+        <div class="stock-statement-links">
+          <a id="stockScreenerPL" href="https://www.screener.in/" target="_blank" rel="noopener"><span class="statement-icon">₹</span><span><b>Profit &amp; Loss</b><small>Revenue, expenses, operating profit, net profit, EPS</small></span><span>↗</span></a>
+          <a id="stockScreenerBS" href="https://www.screener.in/" target="_blank" rel="noopener"><span class="statement-icon">▤</span><span><b>Balance Sheet</b><small>Assets, liabilities, equity, borrowings, reserves</small></span><span>↗</span></a>
+          <a id="stockScreenerCF" href="https://www.screener.in/" target="_blank" rel="noopener"><span class="statement-icon">⇄</span><span><b>Cash Flow</b><small>Operating, investing and financing cash flows</small></span><span>↗</span></a>
+          <a id="stockScreenerRatios" href="https://www.screener.in/" target="_blank" rel="noopener"><span class="statement-icon">%</span><span><b>Ratios &amp; Results</b><small>ROE, ROCE, debt/equity, margins, quarterly results</small></span><span>↗</span></a>
+        </div>
+        <p class="stock-disclaimer">Financial statements are opened from an external data provider. Check whether the view is standalone or consolidated and verify figures against the company's annual report before relying on them.</p>
+      </article>
+      <article class="stock-panel stock-range-panel">
+        <div class="stock-panel-head"><div><span class="stock-kicker">OFFICIAL DISCLOSURES</span><h3>Reports &amp; filings</h3></div></div>
+        <div class="stock-statement-links compact">
+          <a id="stockAnnualReport" href="https://www.nseindia.com/" target="_blank" rel="noopener"><span class="statement-icon">PDF</span><span><b>Annual reports</b><small>Company filings and audited statements</small></span><span>↗</span></a>
+          <a id="stockNseFinancials" href="https://www.nseindia.com/" target="_blank" rel="noopener"><span class="statement-icon">NSE</span><span><b>NSE filings</b><small>Exchange disclosures and results</small></span><span>↗</span></a>
+          <a id="stockBseFinancials" href="https://www.bseindia.com/" target="_blank" rel="noopener"><span class="statement-icon">BSE</span><span><b>BSE filings</b><small>Results and corporate announcements</small></span><span>↗</span></a>
+          <a id="stockMcaFinancials" href="https://www.mca.gov.in/" target="_blank" rel="noopener"><span class="statement-icon">MCA</span><span><b>MCA company master data</b><small>Legal entity details and statutory filings</small></span><span>↗</span></a>
+        </div>
+      </article>
+    </div>
     <div class="stock-panel stock-company-details"><div class="stock-panel-head"><div><span class="stock-kicker">CORPORATE PROFILE</span><h3>Company & MCA details</h3></div><span class="stock-source-tag">Verified source links</span></div><div id="stockProfileGrid" class="stock-profile-grid"></div><div class="stock-official-links"><a href="https://www.mcacdm.nic.in/company-master-details" target="_blank" rel="noopener">MCA Company Master Data ↗</a><a id="stockBseLink" href="https://www.bseindia.com/" target="_blank" rel="noopener">BSE company information ↗</a><a id="stockNseLink" href="https://www.nseindia.com/" target="_blank" rel="noopener">NSE company information ↗</a><a href="https://www.data.gov.in/catalog/company-master-data" target="_blank" rel="noopener">Government Company Master Data ↗</a></div><p class="stock-disclaimer">Market data is indicative and may be delayed. MCA fields such as CIN, incorporation date, registered office, directors and authorised/paid-up capital are not guessed: open the official master-data source to verify the selected legal entity. Full filing documents may require MCA login or fees.</p></div>
   </div>
 </section>
