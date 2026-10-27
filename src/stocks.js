@@ -84,31 +84,54 @@ async function loadStock(range=activeRange){
   const isBse=/\.BO$/i.test(selected.symbol);
   const tvSymbol=(isNse?"NSE:":isBse?"BSE:":(selected.exchange||"NSE")+":")+selected.symbol.replace(/\.(NS|BO)$/i,"");
   const encodedSymbol=encodeURIComponent(tvSymbol);
-  const rangeMap={"1mo":"1","3mo":"3","6mo":"6","1y":"12","5y":"60"};
-  const months=rangeMap[range]||"12";
-  // Use TradingView's hosted chart widget: no browser-side API key or CORS fetch is required.
-  const chartUrl="https://www.tradingview.com/widgetembed/?symbol="+encodedSymbol+"&interval=D&hidesidetoolbar=0&symboledit=1&saveimage=0&toolbarbg=F7FAFC&theme=light&style=1&timezone=Asia%2FKolkata&withdateranges=1&hideideas=1&hidevolume=0&locale=en";
   const chart=$("stockLineChart");
   chart.innerHTML="";
-  const frame=document.createElement("iframe");
-  frame.title=company+" stock price chart";
-  frame.loading="lazy";
-  frame.referrerPolicy="origin";
-  frame.style.cssText="display:block;width:100%;height:430px;border:0;border-radius:12px;background:#f7fafc";
-  frame.src=chartUrl;
-  chart.appendChild(frame);
+  const widgetId="tv_chart_"+Date.now();
+  const mount=document.createElement("div");
+  mount.id=widgetId;
+  mount.style.cssText="width:100%;height:430px";
+  chart.appendChild(mount);
+  // Use TradingView's documented Advanced Chart widget rather than the restricted widgetembed URL.
+  const script=document.createElement("script");
+  script.src="https://s3.tradingview.com/tv.js";
+  script.async=true;
+  script.onload=()=>{
+    if(!window.TradingView||!document.getElementById(widgetId))return;
+    try{
+      new window.TradingView.widget({
+        autosize:true,
+        symbol:tvSymbol,
+        interval:range==="1mo"?"D":range==="3mo"?"D":range==="6mo"?"D":range==="5y"?"W":"D",
+        timezone:"Asia/Kolkata",
+        theme:"light",
+        style:"1",
+        locale:"en",
+        enable_publishing:false,
+        allow_symbol_change:true,
+        calendar:false,
+        support_host:"https://www.tradingview.com",
+        container_id:widgetId
+      });
+    }catch(err){
+      chart.innerHTML='<div class="stock-empty">Chart could not load. <a href="https://www.tradingview.com/chart/?symbol='+encodeURIComponent(tvSymbol)+'" target="_blank" rel="noopener">Open '+tvSymbol+' on TradingView ↗</a></div>';
+    }
+  };
+  script.onerror=()=>{
+    chart.innerHTML='<div class="stock-empty">Chart provider could not load. <a href="https://www.tradingview.com/chart/?symbol='+encodeURIComponent(tvSymbol)+'" target="_blank" rel="noopener">Open '+tvSymbol+' on TradingView ↗</a></div>';
+  };
+  chart.appendChild(script);
   $("stockChartRange").textContent="Interactive chart · "+tvSymbol;
   $("stockChartSource").textContent="Chart provider: TradingView";
-  $("stockPrice").textContent="See live quote ↗";
+  $("stockPrice").textContent="Open live quote ↗";
   $("stockPrice").style.fontSize="clamp(19px,2.5vw,26px)";
-  $("stockPrice").onclick=()=>window.open("https://www.tradingview.com/symbols/"+encodeURIComponent(tvSymbol)+"/","_blank","noopener");
+  $("stockPrice").onclick=()=>window.open("https://www.tradingview.com/chart/?symbol="+encodeURIComponent(tvSymbol),"_blank","noopener");
   $("stockPrice").style.cursor="pointer";
   const changeEl=$("stockChange");
   changeEl.textContent="Quote and price changes shown in chart";
   changeEl.className="stock-change";
   $("stockAsOf").textContent="Market quote availability depends on TradingView and exchange data permissions.";
   const metrics=$("stockMetrics");metrics.replaceChildren();
-  metrics.append(metric("Exchange",selected.exchDisp||selected.exchange||"Not available"),metric("Ticker",selected.symbol),metric("Security type",selected.quoteType||"Equity"),metric("Market data","TradingView chart"),metric("Price history","Interactive"),metric("Currency","INR (expected; verify listing)"));
+  metrics.append(metric("Exchange",selected.exchDisp||selected.exchange||"Not available"),metric("Ticker",selected.symbol),metric("Security type",selected.quoteType||"Equity"),metric("Market data","TradingView chart"),metric("Price history","Interactive"),metric("Currency","Check exchange quote"));
   renderDonut(NaN,NaN,NaN,"INR");
   const profile=$("stockProfileGrid");profile.replaceChildren();
   profile.append(profileItem("Company / security name",company),profileItem("Ticker / exchange symbol",selected.symbol),profileItem("Exchange",selected.exchDisp||selected.exchange),profileItem("Security type",selected.quoteType||"Equity"),profileItem("Sector","Not available from search result"),profileItem("Industry","Not available from search result"),profileItem("Market price","Open TradingView chart"),profileItem("Legal company records","Verify via MCA master data"));
