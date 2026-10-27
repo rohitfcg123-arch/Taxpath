@@ -85,41 +85,46 @@ async function loadStock(range=activeRange){
   const tvSymbol=(isNse?"NSE:":isBse?"BSE:":(selected.exchange||"NSE")+":")+selected.symbol.replace(/\.(NS|BO)$/i,"");
   const encodedSymbol=encodeURIComponent(tvSymbol);
   const chart=$("stockLineChart");
-  chart.innerHTML="";
-  const widgetId="tv_chart_"+Date.now();
-  const mount=document.createElement("div");
-  mount.id=widgetId;
-  mount.style.cssText="width:100%;height:430px";
-  chart.appendChild(mount);
-  // Use TradingView's documented Advanced Chart widget rather than the restricted widgetembed URL.
-  const script=document.createElement("script");
-  script.src="https://s3.tradingview.com/tv.js";
-  script.async=true;
-  script.onload=()=>{
-    if(!window.TradingView||!document.getElementById(widgetId))return;
-    try{
-      new window.TradingView.widget({
-        autosize:true,
-        symbol:tvSymbol,
-        interval:range==="1mo"?"D":range==="3mo"?"D":range==="6mo"?"D":range==="5y"?"W":"D",
-        timezone:"Asia/Kolkata",
-        theme:"light",
-        style:"1",
-        locale:"en",
-        enable_publishing:false,
-        allow_symbol_change:true,
-        calendar:false,
-        support_host:"https://www.tradingview.com",
-        container_id:widgetId
-      });
-    }catch(err){
-      chart.innerHTML='<div class="stock-empty">Chart could not load. <a href="https://www.tradingview.com/chart/?symbol='+encodeURIComponent(tvSymbol)+'" target="_blank" rel="noopener">Open '+tvSymbol+' on TradingView ↗</a></div>';
-    }
+  chart.replaceChildren();
+  // Use TradingView's standard embeddable Advanced Chart widget.
+  const frame=document.createElement("iframe");
+  frame.title=company+" stock price chart";
+  frame.loading="lazy";
+  frame.style.cssText="display:block;width:100%;height:430px;border:0;border-radius:12px;background:#f7fafc";
+  const widgetConfig={
+    autosize:true,
+    symbol:tvSymbol,
+    interval:"D",
+    timezone:"Asia/Kolkata",
+    theme:"light",
+    style:"1",
+    locale:"en",
+    allow_symbol_change:true,
+    calendar:false,
+    support_host:"https://www.tradingview.com"
   };
-  script.onerror=()=>{
-    chart.innerHTML='<div class="stock-empty">Chart provider could not load. <a href="https://www.tradingview.com/chart/?symbol='+encodeURIComponent(tvSymbol)+'" target="_blank" rel="noopener">Open '+tvSymbol+' on TradingView ↗</a></div>';
+  frame.src="https://www.tradingview.com/widgetembed/?"+new URLSearchParams({
+    symbol:tvSymbol,
+    interval:"D",
+    hidesidetoolbar:"0",
+    symboledit:"1",
+    saveimage:"0",
+    toolbarbg:"F7FAFC",
+    theme:"light",
+    style:"1",
+    timezone:"Asia/Kolkata",
+    withdateranges:"1",
+    hideideas:"1",
+    hidevolume:"0",
+    locale:"en",
+    utm_source:"rohitfcg123-arch.github.io",
+    utm_medium:"widget",
+    utm_campaign:"chart"
+  }).toString();
+  frame.onerror=()=>{
+    chart.innerHTML='<div class="stock-empty">This symbol may not be available in the embedded chart. <a href="https://www.tradingview.com/chart/?symbol='+encodeURIComponent(tvSymbol)+'" target="_blank" rel="noopener">Open '+tvSymbol+' on TradingView ↗</a></div>';
   };
-  chart.appendChild(script);
+  chart.appendChild(frame);
   $("stockChartRange").textContent="Interactive chart · "+tvSymbol;
   $("stockChartSource").textContent="Chart provider: TradingView";
   $("stockPrice").textContent="Open live quote ↗";
